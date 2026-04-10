@@ -1,0 +1,180 @@
+// src/core/engine.ts
+import fs from 'fs-extra'
+import path from 'path'
+import type { UserSelections } from './types.js'
+import { PluginRegistry } from './plugin-registry.js'
+import { PluginContextImpl } from './plugin-context.js'
+import { ModuleWirer } from './module-wirer.js'
+
+export interface GenerateOptions {
+  outputDir: string
+  selections: UserSelections
+  skeletonsDir: string
+  selectedPlugins?: string[]
+  skipInstall?: boolean
+  skipGit?: boolean
+  skipFormat?: boolean
+}
+
+export class GeneratorEngine {
+  constructor(private registry: PluginRegistry) {}
+
+  async generate(options: GenerateOptions): Promise<string> {
+    const { outputDir, selections, skeletonsDir, selectedPlugins = [] } = options
+    const projectPath = path.join(outputDir, selections.projectName)
+
+    // 1. Create project directory
+    await fs.ensureDir(projectPath)
+
+    // 2. Copy base skeleton
+    const skeletonDir = path.join(skeletonsDir, selections.structure)
+    if (await fs.pathExists(skeletonDir)) {
+      await fs.copy(skeletonDir, projectPath, { overwrite: true })
+    }
+
+    // 3. Resolve plugin install order
+    const orderedPlugins = this.registry.resolveInstallOrder(selectedPlugins)
+
+    // 4. Run each plugin's install()
+    const ctx = new PluginContextImpl({
+      projectName: selections.projectName,
+      projectPath,
+      structure: selections.structure,
+      selections,
+    })
+
+    for (const pluginName of orderedPlugins) {
+      const plugin = this.registry.get(pluginName)
+      if (plugin) {
+        await plugin.install(ctx)
+      }
+    }
+
+    // 5. Merge package.json
+    await this.mergePackageJson(projectPath, selections.projectName, ctx)
+
+    // 6. Generate .env.example
+    await this.generateEnvFile(projectPath, ctx)
+
+    // 7. Generate docker-compose.yml
+    const dockerServices = ctx.getDockerServices()
+    if (Object.keys(dockerServices).length > 0) {
+      await this.generateDockerCompose(projectPath, dockerServices)
+    }
+
+    // 8. Wire modules into app.module.ts
+    await this.wireModules(projectPath, selections.structure, ctx)
+
+    return projectPath
+  }
+
+  private async mergePackageJson(
+    projectPath: string,
+    projectName: string,
+    ctx: PluginContextImpl,
+  ): Promise<void> {
+    const pkgPath = path.join(projectPath, 'package.json')
+    let pkg: Record<string, unknown> = {}
+
+    if (await fs.pathExists(pkgPath)) {
+      pkg = await fs.readJSON(pkgPath)
+    }
+
+    pkg.name = projectName
+    pkg.version = '0.0.1'
+    pkg.private = true
+
+    const existingDeps = (pkg.dependencies as Record<string, string>) || {}
+    const existingDevDeps = (pkg.devDependencies as Record<string, string>) || {}
+    const existingScripts = (pkg.scripts as Record<string, string>) || {}
+
+    pkg.dependencies = { ...existingDeps, ...ctx.getDependencies() }
+    pkg.devDependencies = { ...existingDevDeps, ...ctx.getDevDependencies() }
+    pkg.scripts = { ...existingScripts, ...ctx.getScripts() }
+
+    await fs.writeJSON(pkgPath, pkg, { spaces: 2 })
+  }
+
+  private async generateEnvFile(projectPath: string, ctx: PluginContextImpl): Promise<void> {
+    const envVars = ctx.getEnvVars()
+    if (Object.keys(envVars).length === 0) return
+
+    const content = Object.entries(envVars)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('\n')
+
+    await fs.writeFile(path.join(projectPath, '.env.example'), content + '\n', 'utf-8')
+    await fs.writeFile(path.join(projectPath, '.env'), content + '\n', 'utf-8')
+  }
+
+  private async generateDockerCompose(
+    projectPath: string,
+    services: Record<string, import('./types.js').DockerServiceConfig>,
+  ): Promise<void> {
+    let yaml = 'services:\n'
+
+    for (const [name, config] of Object.entries(services)) {
+      yaml += `  ${name}:\n`
+      yaml += `    image: ${config.image}\n`
+
+      if (config.restart) {
+        yaml += `    restart: ${config.restart}\n`
+      }
+
+      if (config.ports?.length) {
+        yaml += '    ports:\n'
+        for (const port of config.ports) {
+          yaml += `      - '${port}'\n`
+        }
+      }
+
+      if (config.environment) {
+        yaml += '    environment:\n'
+        for (const [key, value] of Object.entries(config.environment)) {
+          yaml += `      ${key}: ${value}\n`
+        }
+      }
+
+      if (config.volumes?.length) {
+        yaml += '    volumes:\n'
+        for (const vol of config.volumes) {
+          yaml += `      - ${vol}\n`
+        }
+      }
+
+      yaml += '\n'
+    }
+
+    await fs.writeFile(path.join(projectPath, 'docker-compose.yml'), yaml, 'utf-8')
+  }
+
+  private async wireModules(
+    projectPath: string,
+    structure: string,
+    ctx: PluginContextImpl,
+  ): Promise<void> {
+    const modules = ctx.getModules()
+    const providers = ctx.getProviders()
+    if (modules.length === 0 && providers.length === 0) return
+
+    const appModulePath =
+      structure === 'monorepo'
+        ? path.join(projectPath, 'apps/api/src/app.module.ts')
+        : path.join(projectPath, 'src/app.module.ts')
+
+    if (!(await fs.pathExists(appModulePath))) return
+
+    const source = await fs.readFile(appModulePath, 'utf-8')
+    const wirer = new ModuleWirer(source)
+
+    for (const mod of modules) {
+      wirer.addModule(mod.moduleName, mod.importPath)
+    }
+
+    for (const prov of providers) {
+      wirer.addProvider(prov.moduleName, prov.importPath)
+    }
+
+    await fs.writeFile(appModulePath, wirer.toString(), 'utf-8')
+  }
+}

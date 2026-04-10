@@ -1,5 +1,8 @@
 # quickstart-nestjs
 
+[![npm version](https://img.shields.io/npm/v/quickstart-nestjs.svg)](https://www.npmjs.com/package/quickstart-nestjs)
+[![license](https://img.shields.io/npm/l/quickstart-nestjs.svg)](https://github.com/kurovu146/quickstart-nestjs/blob/main/LICENSE)
+
 CLI tool that scaffolds production-ready NestJS projects through interactive prompts.
 
 ## Quick Start
@@ -13,7 +16,7 @@ You will be prompted to choose a project structure, package manager, and any com
 ## Features
 
 - Interactive prompt-driven setup — no flags to memorize
-- 18 plugins across 11 categories (database, ORM, auth, cache, realtime, docs, infra, logger, queue, mailer, upload)
+- 20 plugins across 11 categories (database, ORM, auth, cache, realtime, docs, infra, logger, queue, mailer, upload)
 - Smart compatibility filtering — incompatible options are hidden based on prior selections
 - Monolith and monorepo project structures
 - Auto-generates `.env`, `docker-compose.yml`, and NestJS module wiring
@@ -78,8 +81,9 @@ my-project/
 │   ├── users/
 │   │   ├── users.module.ts
 │   │   └── users.service.ts
-│   ├── database/
-│   │   └── database.module.ts
+│   ├── prisma/
+│   │   ├── prisma.module.ts
+│   │   └── prisma.service.ts
 │   ├── common/
 │   │   ├── decorators/public.decorator.ts
 │   │   ├── filters/http-exception.filter.ts
@@ -93,6 +97,27 @@ my-project/
 ├── nest-cli.json
 ├── tsconfig.json
 └── package.json
+```
+
+## Development
+
+```bash
+git clone https://github.com/kurovu146/quickstart-nestjs.git
+cd quickstart-nestjs
+npm install
+
+# Watch mode
+npm run dev
+
+# Run locally
+npm run build && node dist/cli.js my-project
+
+# Run tests
+npm test
+
+# Lint & format
+npm run lint
+npm run format
 ```
 
 ## Contributing

@@ -25,7 +25,8 @@ export class GeneratorEngine {
     const { outputDir, selections, skeletonsDir, selectedPlugins = [] } = options
     const projectPath = path.join(outputDir, selections.projectName)
 
-    // 1. Create project directory
+    // 1. Clean and create project directory
+    await fs.remove(projectPath)
     await fs.ensureDir(projectPath)
 
     // 2. Copy base skeleton

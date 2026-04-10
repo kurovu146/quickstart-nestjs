@@ -52,7 +52,8 @@ export class ModuleWirer {
     if (!match) return source
 
     const existingContent = match[2].trim()
-    const separator = existingContent.length > 0 ? ', ' : ''
+    const separator =
+      existingContent.length === 0 ? '' : existingContent.endsWith(',') ? '\n    ' : ',\n    '
 
     return source.replace(regex, `$1${match[2]}${separator}${value}`)
   }

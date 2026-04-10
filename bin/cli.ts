@@ -50,22 +50,44 @@ program
     if (selections.docker) selectedPlugins.push('docker')
 
     // Generate
-    const spinner = ora('Generating project...').start()
+    const spinner = ora('Scaffolding project...').start()
     const skeletonsDir = path.resolve(__dirname, '../src/skeletons')
     const outputDir = process.cwd()
 
     try {
       const engine = new GeneratorEngine(registry)
+
+      // Step 1: Generate files
       const projectPath = await engine.generate({
         outputDir,
         selections,
         skeletonsDir,
         selectedPlugins,
+        skipInstall: true,
+        skipGit: true,
       })
+      spinner.succeed('Project scaffolded!')
 
-      spinner.succeed('Project generated!')
+      // Step 2: Install dependencies
+      const installSpinner = ora(`Installing dependencies with ${selections.packageManager}...`).start()
+      try {
+        engine.installDependencies(projectPath, selections.packageManager)
+        installSpinner.succeed('Dependencies installed!')
+      } catch {
+        installSpinner.warn('Failed to install dependencies. Run install manually.')
+      }
+
+      // Step 3: Init git
+      const gitSpinner = ora('Initializing git repository...').start()
+      try {
+        engine.initGit(projectPath)
+        gitSpinner.succeed('Git repository initialized!')
+      } catch {
+        gitSpinner.warn('Failed to initialize git. Run git init manually.')
+      }
+
       console.log('')
-      console.log(chalk.bold('Next steps:'))
+      console.log(chalk.bold('Done! Next steps:'))
       console.log(`  cd ${selections.projectName}`)
       console.log(`  ${selections.packageManager} run start:dev`)
       console.log('')

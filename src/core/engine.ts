@@ -1,7 +1,8 @@
 // src/core/engine.ts
 import fs from 'fs-extra'
 import path from 'path'
-import type { UserSelections } from './types.js'
+import { execSync } from 'child_process'
+import type { UserSelections, PackageManager } from './types.js'
 import { PluginRegistry } from './plugin-registry.js'
 import { PluginContextImpl } from './plugin-context.js'
 import { ModuleWirer } from './module-wirer.js'
@@ -68,7 +69,43 @@ export class GeneratorEngine {
     // 8. Wire modules into app.module.ts
     await this.wireModules(projectPath, selections.structure, ctx)
 
+    // 9. Install dependencies
+    if (!options.skipInstall) {
+      this.installDependencies(projectPath, selections.packageManager)
+    }
+
+    // 10. Initialize git repository
+    if (!options.skipGit) {
+      this.initGit(projectPath)
+    }
+
     return projectPath
+  }
+
+  installDependencies(projectPath: string, packageManager: PackageManager): void {
+    const installCmd: Record<PackageManager, string> = {
+      npm: 'npm install',
+      yarn: 'yarn install',
+      pnpm: 'pnpm install',
+      bun: 'bun install',
+    }
+    execSync(installCmd[packageManager], {
+      cwd: projectPath,
+      stdio: 'inherit',
+    })
+  }
+
+  initGit(projectPath: string): void {
+    try {
+      execSync('git init', { cwd: projectPath, stdio: 'ignore' })
+      execSync('git add -A', { cwd: projectPath, stdio: 'ignore' })
+      execSync('git commit -m "chore: initial commit from quickstart-nestjs"', {
+        cwd: projectPath,
+        stdio: 'ignore',
+      })
+    } catch {
+      // Git not available, skip silently
+    }
   }
 
   private async mergePackageJson(

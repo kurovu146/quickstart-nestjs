@@ -8,7 +8,7 @@ export const socketIoPlugin = definePlugin({
   description: 'Real-time bidirectional event-based communication',
   conflicts: ['websocket'],
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'socket-io/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     ctx.addDependencies({

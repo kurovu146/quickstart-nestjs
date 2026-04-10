@@ -8,7 +8,7 @@ export const pinoPlugin = definePlugin({
   description: 'Fast, low overhead JSON logger',
   conflicts: ['winston'],
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'pino/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     ctx.addDependencies({

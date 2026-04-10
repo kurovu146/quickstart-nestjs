@@ -10,7 +10,7 @@ export const typeormPlugin = definePlugin({
   requires: ['postgres', 'mysql', 'sqlite', 'mongodb'],
   isCompatible: (sel) => sel.database !== null,
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'typeorm/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     const dbDriverMap: Record<string, string> = {

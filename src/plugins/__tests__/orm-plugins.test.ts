@@ -37,6 +37,7 @@ describe('ORM plugins', () => {
       projectPath: TEST_DIR,
       structure: 'monolith',
       selections: { ...baseSelections, orm: 'prisma' },
+      pluginsDir: path.resolve(import.meta.dirname, '..'),
     })
     await prismaPlugin.install(ctx)
     expect(ctx.getDependencies()).toHaveProperty('@prisma/client')
@@ -60,6 +61,7 @@ describe('ORM plugins', () => {
       projectPath: TEST_DIR,
       structure: 'monolith',
       selections: { ...baseSelections, orm: 'typeorm' },
+      pluginsDir: path.resolve(import.meta.dirname, '..'),
     })
     await typeormPlugin.install(ctx)
     expect(ctx.getDependencies()).toHaveProperty('typeorm')
@@ -79,6 +81,7 @@ describe('ORM plugins', () => {
       projectPath: TEST_DIR,
       structure: 'monolith',
       selections: { ...baseSelections, database: 'mongodb', orm: 'mongoose' },
+      pluginsDir: path.resolve(import.meta.dirname, '..'),
     })
     await mongoosePlugin.install(ctx)
     expect(ctx.getDependencies()).toHaveProperty('@nestjs/mongoose')

@@ -33,6 +33,7 @@ function createCtx(db: string) {
     projectPath: TEST_DIR,
     structure: 'monolith',
     selections: { ...baseSelections, database: db },
+    pluginsDir: path.resolve(import.meta.dirname, '..'),
   })
 }
 

@@ -10,7 +10,7 @@ export const sequelizePlugin = definePlugin({
   requires: ['postgres', 'mysql', 'sqlite'],
   isCompatible: (sel) => sel.database !== 'mongodb' && sel.database !== null,
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'sequelize/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     const driverMap: Record<string, string[]> = {

@@ -15,6 +15,7 @@ interface PluginContextOptions {
   projectPath: string
   structure: ProjectStructure
   selections: UserSelections
+  pluginsDir?: string
 }
 
 export class PluginContextImpl implements PluginContext {
@@ -22,6 +23,7 @@ export class PluginContextImpl implements PluginContext {
   readonly projectPath: string
   readonly structure: ProjectStructure
   readonly selections: UserSelections
+  readonly pluginsDir: string
 
   private deps: Record<string, string> = {}
   private devDeps: Record<string, string> = {}
@@ -37,6 +39,7 @@ export class PluginContextImpl implements PluginContext {
     this.projectPath = options.projectPath
     this.structure = options.structure
     this.selections = options.selections
+    this.pluginsDir = options.pluginsDir || ''
   }
 
   copyTemplates(source: string, dest?: string): void {

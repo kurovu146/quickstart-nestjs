@@ -33,6 +33,7 @@ function createCtx(overrides: Partial<UserSelections> = {}) {
     projectPath: TEST_DIR,
     structure: 'monolith',
     selections: { ...baseSelections, ...overrides },
+    pluginsDir: path.resolve(import.meta.dirname, '..'),
   })
 }
 

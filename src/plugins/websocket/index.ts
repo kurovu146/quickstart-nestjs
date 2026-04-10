@@ -8,7 +8,7 @@ export const websocketPlugin = definePlugin({
   description: 'Native WebSocket protocol support',
   conflicts: ['socket-io'],
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'websocket/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     ctx.addDependencies({

@@ -8,7 +8,7 @@ export const winstonPlugin = definePlugin({
   description: 'Versatile logging library with multiple transports',
   conflicts: ['pino'],
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'winston/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     ctx.addDependencies({

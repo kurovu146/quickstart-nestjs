@@ -10,7 +10,7 @@ export const mongoosePlugin = definePlugin({
   requires: ['mongodb'],
   isCompatible: (sel) => sel.database === 'mongodb',
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'mongoose/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     ctx.addDependencies({

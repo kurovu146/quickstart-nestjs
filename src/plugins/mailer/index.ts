@@ -8,7 +8,7 @@ export const mailerPlugin = definePlugin({
   description: 'Email sending with Nodemailer',
   conflicts: [],
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'mailer/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     ctx.addDependencies({

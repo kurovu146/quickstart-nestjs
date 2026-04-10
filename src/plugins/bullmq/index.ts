@@ -10,7 +10,7 @@ export const bullmqPlugin = definePlugin({
   requires: ['redis'],
   isCompatible: (sel) => sel.cache === 'redis',
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'bullmq/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     ctx.addDependencies({

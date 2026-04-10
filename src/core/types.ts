@@ -59,6 +59,7 @@ export interface PluginContext {
   projectPath: string
   structure: ProjectStructure
   selections: UserSelections
+  pluginsDir: string
 
   copyTemplates(source: string, dest?: string): void
   renderTemplate(source: string, dest: string, data: Record<string, unknown>): void

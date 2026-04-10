@@ -10,6 +10,7 @@ export interface GenerateOptions {
   outputDir: string
   selections: UserSelections
   skeletonsDir: string
+  pluginsDir?: string
   selectedPlugins?: string[]
   skipInstall?: boolean
   skipGit?: boolean
@@ -36,11 +37,13 @@ export class GeneratorEngine {
     const orderedPlugins = this.registry.resolveInstallOrder(selectedPlugins)
 
     // 4. Run each plugin's install()
+    const pluginsDir = options.pluginsDir || path.join(path.dirname(skeletonsDir), 'plugins')
     const ctx = new PluginContextImpl({
       projectName: selections.projectName,
       projectPath,
       structure: selections.structure,
       selections,
+      pluginsDir,
     })
 
     for (const pluginName of orderedPlugins) {

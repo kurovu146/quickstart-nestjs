@@ -11,7 +11,7 @@ export const prismaPlugin = definePlugin({
   requires: ['postgres', 'mysql', 'sqlite'],
   isCompatible: (sel) => sel.database !== 'mongodb' && sel.database !== null,
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'prisma/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     const providerMap: Record<string, string> = {

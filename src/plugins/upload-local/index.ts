@@ -8,7 +8,7 @@ export const uploadLocalPlugin = definePlugin({
   description: 'File upload to local filesystem',
   conflicts: ['upload-s3'],
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'upload-local/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     ctx.addDependencies({

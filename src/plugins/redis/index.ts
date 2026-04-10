@@ -8,7 +8,7 @@ export const redisPlugin = definePlugin({
   description: 'In-memory data store for caching',
   conflicts: [],
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'redis/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     ctx.addDependencies({

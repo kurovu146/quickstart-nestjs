@@ -8,7 +8,7 @@ export const dockerPlugin = definePlugin({
   description: 'Docker containerization support',
   conflicts: [],
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'docker/templates')
     ctx.copyTemplates(templateDir)
   },
 })

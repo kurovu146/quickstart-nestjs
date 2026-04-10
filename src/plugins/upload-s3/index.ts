@@ -8,7 +8,7 @@ export const uploadS3Plugin = definePlugin({
   description: 'File upload to AWS S3',
   conflicts: ['upload-local'],
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'upload-s3/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     ctx.addDependencies({

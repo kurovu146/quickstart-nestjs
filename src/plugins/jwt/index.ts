@@ -10,7 +10,7 @@ export const jwtPlugin = definePlugin({
   requires: ['prisma', 'typeorm', 'sequelize', 'mongoose'],
   isCompatible: (sel) => sel.orm !== null,
   install: async (ctx) => {
-    const templateDir = path.join(import.meta.dirname, 'templates')
+    const templateDir = path.join(ctx.pluginsDir, 'jwt/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
     ctx.addDependencies({

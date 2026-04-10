@@ -34,6 +34,7 @@ describe('JWT plugin', () => {
       projectPath: TEST_DIR,
       structure: 'monolith',
       selections: baseSelections,
+      pluginsDir: path.resolve(import.meta.dirname, '..'),
     })
     await jwtPlugin.install(ctx)
     expect(ctx.getDependencies()).toHaveProperty('@nestjs/jwt')
@@ -49,6 +50,7 @@ describe('JWT plugin', () => {
       projectPath: TEST_DIR,
       structure: 'monolith',
       selections: baseSelections,
+      pluginsDir: path.resolve(import.meta.dirname, '..'),
     })
     await jwtPlugin.install(ctx)
     expect(ctx.getEnvVars()).toHaveProperty('JWT_SECRET')
@@ -61,6 +63,7 @@ describe('JWT plugin', () => {
       projectPath: TEST_DIR,
       structure: 'monolith',
       selections: baseSelections,
+      pluginsDir: path.resolve(import.meta.dirname, '..'),
     })
     await jwtPlugin.install(ctx)
     const moduleNames = ctx.getModules().map(m => m.moduleName)
@@ -74,6 +77,7 @@ describe('JWT plugin', () => {
       projectPath: TEST_DIR,
       structure: 'monolith',
       selections: baseSelections,
+      pluginsDir: path.resolve(import.meta.dirname, '..'),
     })
     await jwtPlugin.install(ctx)
     expect(await fs.pathExists(path.join(TEST_DIR, 'src/auth/auth.module.ts'))).toBe(true)

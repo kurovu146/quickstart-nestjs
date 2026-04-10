@@ -1,7 +1,7 @@
 # quickstart-nestjs
 
-[![npm version](https://img.shields.io/npm/v/quickstart-nestjs.svg)](https://www.npmjs.com/package/quickstart-nestjs)
-[![license](https://img.shields.io/npm/l/quickstart-nestjs.svg)](https://github.com/kurovu146/quickstart-nestjs/blob/main/LICENSE)
+[![license](https://img.shields.io/github/license/kurovu146/quickstart-nestjs)](https://github.com/kurovu146/quickstart-nestjs/blob/main/LICENSE)
+[![node](https://img.shields.io/node/v/quickstart-nestjs?label=node)](https://nodejs.org)
 
 CLI tool that scaffolds production-ready NestJS projects through interactive prompts.
 

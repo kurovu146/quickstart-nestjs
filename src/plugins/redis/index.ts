@@ -15,6 +15,7 @@ export const redisPlugin = definePlugin({
       '@nestjs/cache-manager': '^3.0.0',
       'cache-manager': '^6.0.0',
       'cache-manager-redis-yet': '^5.0.0',
+      keyv: '^5.0.0',
       redis: '^4.7.0',
     })
     ctx.addEnvVars({

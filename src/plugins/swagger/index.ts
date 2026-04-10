@@ -8,7 +8,7 @@ export const swaggerPlugin = definePlugin({
   conflicts: [],
   install: async (ctx) => {
     ctx.addDependencies({
-      '@nestjs/swagger': '^8.0.0',
+      '@nestjs/swagger': '^11.0.0',
     })
     // Swagger setup is done in main.ts — plugin adds a setup snippet
     // The user can customize it after generation

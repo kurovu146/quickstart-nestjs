@@ -96,6 +96,26 @@ export class GeneratorEngine {
     })
   }
 
+  runPostInstallSteps(
+    projectPath: string,
+    selections: UserSelections,
+    packageManager: PackageManager,
+  ): void {
+    const execCmd: Record<PackageManager, string> = {
+      npm: 'npx',
+      yarn: 'yarn',
+      pnpm: 'pnpm exec',
+      bun: 'bunx',
+    }
+
+    if (selections.orm === 'prisma') {
+      execSync(`${execCmd[packageManager]} prisma generate`, {
+        cwd: projectPath,
+        stdio: 'inherit',
+      })
+    }
+  }
+
   initGit(projectPath: string): void {
     try {
       execSync('git init', { cwd: projectPath, stdio: 'ignore' })

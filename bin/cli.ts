@@ -77,6 +77,17 @@ program
         installSpinner.warn('Failed to install dependencies. Run install manually.')
       }
 
+      // Step 2b: Run post-install steps (e.g. prisma generate)
+      if (selections.orm === 'prisma') {
+        const postSpinner = ora('Generating Prisma client...').start()
+        try {
+          engine.runPostInstallSteps(projectPath, selections, selections.packageManager)
+          postSpinner.succeed('Prisma client generated!')
+        } catch {
+          postSpinner.warn('Failed to generate Prisma client. Run `npx prisma generate` manually.')
+        }
+      }
+
       // Step 3: Init git
       const gitSpinner = ora('Initializing git repository...').start()
       try {

@@ -1,6 +1,6 @@
 {
   "name": "quickstart-nestjs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scaffold production-ready NestJS projects with interactive prompts",
   "type": "module",
   "bin": {

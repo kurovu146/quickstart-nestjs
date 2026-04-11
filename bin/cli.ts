@@ -99,8 +99,28 @@ program
 
       console.log('')
       console.log(chalk.bold('Done! Next steps:'))
+      const pm = selections.packageManager
+      const run = pm === 'npm' ? 'npm run' : pm
+      const exec = pm === 'npm' ? 'npx' : pm === 'yarn' ? 'yarn' : pm === 'pnpm' ? 'pnpm exec' : 'bunx'
+
       console.log(`  cd ${selections.projectName}`)
-      console.log(`  ${selections.packageManager} run start:dev`)
+
+      if (selections.docker) {
+        console.log(chalk.gray('  # Start databases (or use your own and update .env)'))
+        console.log(`  ${run} db:up`)
+      } else if (selections.database) {
+        console.log(chalk.gray('  # Make sure your database is running and .env is configured'))
+      }
+
+      if (selections.orm === 'prisma') {
+        console.log(chalk.gray('  # Create tables from schema'))
+        console.log(`  ${exec} prisma migrate dev --name init`)
+      } else if (selections.orm === 'typeorm' || selections.orm === 'sequelize') {
+        console.log(chalk.gray('  # Run migrations if you have any'))
+      }
+
+      console.log(chalk.gray('  # Start the app'))
+      console.log(`  ${run} start:dev`)
       console.log('')
     } catch (err) {
       spinner.fail('Generation failed')

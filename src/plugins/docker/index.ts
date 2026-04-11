@@ -10,5 +10,11 @@ export const dockerPlugin = definePlugin({
   install: async (ctx) => {
     const templateDir = path.join(ctx.pluginsDir, 'docker/templates')
     ctx.copyTemplates(templateDir)
+    ctx.addScripts({
+      'db:up': 'docker compose up -d',
+      'db:down': 'docker compose down',
+      'db:reset': 'docker compose down -v && docker compose up -d',
+      'db:logs': 'docker compose logs -f',
+    })
   },
 })

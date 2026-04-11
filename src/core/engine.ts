@@ -173,6 +173,7 @@ export class GeneratorEngine {
     services: Record<string, import('./types.js').DockerServiceConfig>,
   ): Promise<void> {
     let yaml = 'services:\n'
+    const namedVolumes = new Set<string>()
 
     for (const [name, config] of Object.entries(services)) {
       yaml += `  ${name}:\n`
@@ -200,10 +201,22 @@ export class GeneratorEngine {
         yaml += '    volumes:\n'
         for (const vol of config.volumes) {
           yaml += `      - ${vol}\n`
+          // Collect named volumes (format: "name:path", not "./path:path" or "/path:path")
+          const volumeName = vol.split(':')[0]
+          if (volumeName && !volumeName.startsWith('.') && !volumeName.startsWith('/')) {
+            namedVolumes.add(volumeName)
+          }
         }
       }
 
       yaml += '\n'
+    }
+
+    if (namedVolumes.size > 0) {
+      yaml += 'volumes:\n'
+      for (const vol of namedVolumes) {
+        yaml += `  ${vol}:\n`
+      }
     }
 
     await fs.writeFile(path.join(projectPath, 'docker-compose.yml'), yaml, 'utf-8')

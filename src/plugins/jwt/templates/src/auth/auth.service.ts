@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -13,12 +13,23 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
+    // Return a clean 409 instead of letting the DB unique-constraint error
+    // bubble up as a 500.
+    const existing = await this.usersService.findByEmail(registerDto.email);
+    if (existing) {
+      throw new ConflictException('Email already registered');
+    }
+
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     const user = await this.usersService.create({
       ...registerDto,
       password: hashedPassword,
     });
-    const { password, ...result } = user as any;
+    // Normalize ORM model instances (Sequelize/Mongoose) to a plain object
+    // before stripping the password so the response never leaks the hash.
+    const plain =
+      user && typeof (user as any).toJSON === 'function' ? (user as any).toJSON() : user;
+    const { password, ...result } = plain as any;
     return result;
   }
 

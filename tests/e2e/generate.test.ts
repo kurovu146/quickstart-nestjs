@@ -137,6 +137,15 @@ describe('E2E: Full project generation', () => {
     // Prisma db:seed script must have a matching seed file.
     expect(await fs.pathExists(path.join(projectPath, 'prisma/seed.ts'))).toBe(true)
 
+    // UsersService must be the real Prisma-backed implementation, not the stub,
+    // so register/login actually persist and authenticate.
+    const usersService = await fs.readFile(
+      path.join(projectPath, 'src/users/users.service.ts'),
+      'utf-8',
+    )
+    expect(usersService).toContain('PrismaService')
+    expect(usersService).not.toContain('placeholder')
+
     // Verify .env.example has all vars
     const envContent = await fs.readFile(path.join(projectPath, '.env.example'), 'utf-8')
     expect(envContent).toContain('DATABASE_URL')

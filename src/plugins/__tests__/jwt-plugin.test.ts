@@ -93,4 +93,46 @@ describe('JWT plugin', () => {
     expect(jwtPlugin.isCompatible!({ ...baseSelections, orm: null })).toBe(false)
     expect(jwtPlugin.isCompatible!({ ...baseSelections, orm: 'prisma' })).toBe(true)
   })
+
+  it('should overlay a real Prisma UsersService (not the stub)', async () => {
+    const ctx = new PluginContextImpl({
+      projectName: 'test',
+      projectPath: TEST_DIR,
+      structure: 'monolith',
+      selections: { ...baseSelections, orm: 'prisma' },
+      pluginsDir: path.resolve(import.meta.dirname, '..'),
+    })
+    await jwtPlugin.install(ctx)
+    const svc = await fs.readFile(path.join(TEST_DIR, 'src/users/users.service.ts'), 'utf-8')
+    expect(svc).toContain('PrismaService')
+    expect(svc).not.toContain('placeholder')
+  })
+
+  it('should overlay TypeORM users layer with an entity', async () => {
+    const ctx = new PluginContextImpl({
+      projectName: 'test',
+      projectPath: TEST_DIR,
+      structure: 'monolith',
+      selections: { ...baseSelections, database: 'mysql', orm: 'typeorm' },
+      pluginsDir: path.resolve(import.meta.dirname, '..'),
+    })
+    await jwtPlugin.install(ctx)
+    expect(await fs.pathExists(path.join(TEST_DIR, 'src/users/entities/user.entity.ts'))).toBe(true)
+    const svc = await fs.readFile(path.join(TEST_DIR, 'src/users/users.service.ts'), 'utf-8')
+    expect(svc).toContain('@InjectRepository')
+  })
+
+  it('should overlay Mongoose users layer with a schema', async () => {
+    const ctx = new PluginContextImpl({
+      projectName: 'test',
+      projectPath: TEST_DIR,
+      structure: 'monolith',
+      selections: { ...baseSelections, database: 'mongodb', orm: 'mongoose' },
+      pluginsDir: path.resolve(import.meta.dirname, '..'),
+    })
+    await jwtPlugin.install(ctx)
+    expect(await fs.pathExists(path.join(TEST_DIR, 'src/users/schemas/user.schema.ts'))).toBe(true)
+    const svc = await fs.readFile(path.join(TEST_DIR, 'src/users/users.service.ts'), 'utf-8')
+    expect(svc).toContain('@InjectModel')
+  })
 })

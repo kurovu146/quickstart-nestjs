@@ -13,6 +13,15 @@ export const jwtPlugin = definePlugin({
     const templateDir = path.join(ctx.pluginsDir, 'jwt/templates')
     ctx.copyTemplates(path.join(templateDir, 'src'), 'src')
 
+    // Overlay the ORM-specific UsersService/model so auth actually persists and
+    // looks up users. Without this the users layer is a non-functional stub and
+    // login can never succeed.
+    const orm = ctx.selections.orm
+    const supportedOrms = ['prisma', 'typeorm', 'sequelize', 'mongoose']
+    if (orm && supportedOrms.includes(orm)) {
+      ctx.copyTemplates(path.join(templateDir, 'orm', orm), 'src/users')
+    }
+
     ctx.addDependencies({
       '@nestjs/jwt': '^11.0.0',
       '@nestjs/passport': '^11.0.0',

@@ -14,9 +14,11 @@ export const redisPlugin = definePlugin({
     ctx.addDependencies({
       '@nestjs/cache-manager': '^3.0.0',
       'cache-manager': '^6.0.0',
-      'cache-manager-redis-yet': '^5.0.0',
+      // cache-manager v6 / @nestjs/cache-manager v3 use Keyv stores. @keyv/redis
+      // is the supported Redis store; the old cache-manager-redis-yet + redis@4
+      // combo clashed with bullmq (needs redis>=5) and used the v5 store API.
+      '@keyv/redis': '^4.0.0',
       keyv: '^5.0.0',
-      redis: '^4.7.0',
     })
     ctx.addEnvVars({
       REDIS_HOST: 'localhost',

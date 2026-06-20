@@ -44,6 +44,11 @@ describe('Cache & Realtime plugins', () => {
     const ctx = createCtx({ cache: 'redis' })
     await redisPlugin.install(ctx)
     expect(ctx.getDependencies()).toHaveProperty('@nestjs/cache-manager')
+    // Keyv-based store for cache-manager v6; must NOT pull the old redis@4 /
+    // cache-manager-redis-yet combo that conflicts with bullmq.
+    expect(ctx.getDependencies()).toHaveProperty('@keyv/redis')
+    expect(ctx.getDependencies()).not.toHaveProperty('cache-manager-redis-yet')
+    expect(ctx.getDependencies()).not.toHaveProperty('redis')
     expect(ctx.getEnvVars()).toHaveProperty('REDIS_HOST')
     expect(ctx.getEnvVars()).toHaveProperty('REDIS_PORT')
     expect(ctx.getDockerServices()).toHaveProperty('redis')

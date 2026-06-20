@@ -13,7 +13,9 @@ export const mailerPlugin = definePlugin({
 
     ctx.addDependencies({
       '@nestjs-modules/mailer': '^2.0.0',
-      nodemailer: '^6.9.0',
+      // @nestjs-modules/mailer@2 requires nodemailer >=8.0.5 as a peer; the old
+      // ^6.9.0 pin made `npm install` fail with ERESOLVE.
+      nodemailer: '^9.0.0',
     })
     ctx.addDevDependencies({
       '@types/nodemailer': '^6.4.0',

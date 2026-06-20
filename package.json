@@ -4,7 +4,7 @@
   "description": "Scaffold production-ready NestJS projects with interactive prompts",
   "type": "module",
   "bin": {
-    "quickstart-nestjs": "./dist/cli.js"
+    "quickstart-nestjs": "dist/cli.js"
   },
   "files": [
     "dist",

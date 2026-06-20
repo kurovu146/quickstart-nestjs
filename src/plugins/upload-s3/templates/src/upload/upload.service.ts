@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
+import { basename } from 'path';
 
 @Injectable()
 export class UploadService {
@@ -20,7 +21,10 @@ export class UploadService {
   }
 
   async upload(file: Express.Multer.File) {
-    const key = `${randomUUID()}-${file.originalname}`;
+    // Sanitize the client-supplied name so the S3 key stays a single, clean
+    // segment (no "../", no path separators leaking into the object key).
+    const safeName = basename(file.originalname).replace(/[^a-zA-Z0-9._-]/g, '_');
+    const key = `${randomUUID()}-${safeName}`;
 
     await this.s3.send(
       new PutObjectCommand({

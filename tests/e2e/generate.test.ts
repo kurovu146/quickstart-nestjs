@@ -76,6 +76,20 @@ describe('E2E: Full project generation', () => {
     expect(await fs.pathExists(path.join(projectPath, 'docker-compose.yml'))).toBe(true)
     expect(await fs.pathExists(path.join(projectPath, '.env.example'))).toBe(true)
 
+    // A .gitignore must exist and exclude secrets so `git init` (run by the CLI)
+    // never commits .env / node_modules.
+    const gitignore = await fs.readFile(path.join(projectPath, '.gitignore'), 'utf-8')
+    expect(gitignore).toContain('.env')
+    expect(gitignore).toContain('node_modules/')
+
+    // The S3 upload service must sanitize the client-supplied file name.
+    const uploadService = await fs.readFile(
+      path.join(projectPath, 'src/upload/upload.service.ts'),
+      'utf-8',
+    )
+    expect(uploadService).toContain('basename')
+    expect(uploadService).not.toMatch(/\$\{randomUUID\(\)\}-\$\{file\.originalname\}/)
+
     // Verify package.json has all deps
     const pkg = await fs.readJSON(path.join(projectPath, 'package.json'))
     expect(pkg.name).toBe('e2e-test-project')
@@ -185,5 +199,14 @@ describe('E2E: Full project generation', () => {
     // Verify module wiring in monorepo path
     const appModule = await fs.readFile(path.join(projectPath, 'apps/api/src/app.module.ts'), 'utf-8')
     expect(appModule).toContain('PrismaModule')
+
+    // Plugin files must land under apps/api/src (next to the app.module that
+    // imports them via "./prisma/..."), NOT in the monolith-style <root>/src.
+    expect(
+      await fs.pathExists(path.join(projectPath, 'apps/api/src/prisma/prisma.module.ts')),
+    ).toBe(true)
+    expect(await fs.pathExists(path.join(projectPath, 'src/prisma/prisma.module.ts'))).toBe(
+      false,
+    )
   })
 })

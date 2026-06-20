@@ -1,0 +1,10 @@
+ bin/cli.ts                                         | 18 +++--
+ src/cli/prompts.ts                                 | 18 ++++-
+ src/core/__tests__/engine.test.ts                  | 40 +++++++++++
+ src/core/__tests__/plugin-context.test.ts          | 21 ++++++
+ src/core/engine.ts                                 | 80 ++++++++++++++++++++++
+ src/core/plugin-context.ts                         | 23 ++++++-
+ .../templates/src/upload/upload.service.ts         |  8 ++-
+ .../templates/src/upload/upload.service.ts         |  6 +-
+ tests/e2e/generate.test.ts                         | 23 +++++++
+ 9 files changed, 226 insertions(+), 11 deletions(-)

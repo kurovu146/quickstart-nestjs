@@ -2,10 +2,26 @@ import inquirer from 'inquirer'
 import type { UserSelections, PluginCategory } from '../core/types.js'
 import { PluginRegistry } from '../core/plugin-registry.js'
 
+const PROJECT_NAME_PATTERN = /^[a-z0-9-_]+$/
+
+export function isValidProjectName(input: string): boolean {
+  return PROJECT_NAME_PATTERN.test(input)
+}
+
 export async function runPrompts(
   registry: PluginRegistry,
   projectNameArg?: string,
 ): Promise<UserSelections> {
+  // A name passed as a CLI argument bypasses the interactive prompt's validate,
+  // so it must be checked here too — it ends up in a filesystem path that gets
+  // fs.remove()'d, so "../foo" would be a path-traversal footgun.
+  if (projectNameArg !== undefined && !isValidProjectName(projectNameArg)) {
+    throw new Error(
+      `Invalid project name: "${projectNameArg}". ` +
+        'Use lowercase letters, numbers, hyphens and underscores only.',
+    )
+  }
+
   const { projectName } = projectNameArg
     ? { projectName: projectNameArg }
     : await inquirer.prompt([
@@ -15,7 +31,7 @@ export async function runPrompts(
           message: 'Project name:',
           default: 'my-nest-app',
           validate: (input: string) =>
-            /^[a-z0-9-_]+$/.test(input) || 'Use lowercase, numbers, hyphens, underscores only',
+            isValidProjectName(input) || 'Use lowercase, numbers, hyphens, underscores only',
         },
       ])
 

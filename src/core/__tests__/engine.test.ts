@@ -132,4 +132,44 @@ describe('GeneratorEngine', () => {
     expect(appModule).toContain('DatabaseModule')
     expect(appModule).toContain('./database/database.module')
   })
+
+  it('should generate a .gitignore that excludes .env and node_modules', async () => {
+    const engine = new GeneratorEngine(registry)
+
+    await engine.generate({
+      outputDir: TEST_DIR,
+      selections,
+      skeletonsDir: path.join(import.meta.dirname, '../../skeletons'),
+      skipInstall: true,
+      skipGit: true,
+      skipFormat: true,
+    })
+
+    const gitignorePath = path.join(PROJECT_DIR, '.gitignore')
+    expect(await fs.pathExists(gitignorePath)).toBe(true)
+
+    const gitignore = await fs.readFile(gitignorePath, 'utf-8')
+    const lines = gitignore.split('\n').map((l) => l.trim())
+    expect(lines).toContain('.env')
+    expect(lines).toContain('node_modules/')
+    expect(lines).toContain('dist/')
+  })
+
+  it('should reject a project name that escapes the output directory', async () => {
+    const engine = new GeneratorEngine(registry)
+
+    await expect(
+      engine.generate({
+        outputDir: TEST_DIR,
+        selections: { ...selections, projectName: '../evil' },
+        skeletonsDir: path.join(import.meta.dirname, '../../skeletons'),
+        skipInstall: true,
+        skipGit: true,
+        skipFormat: true,
+      }),
+    ).rejects.toThrow(/invalid project name/i)
+
+    // The traversal target must not have been created/removed.
+    expect(await fs.pathExists(path.join(TEST_DIR, '../evil'))).toBe(false)
+  })
 })

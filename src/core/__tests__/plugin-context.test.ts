@@ -51,6 +51,27 @@ describe('PluginContextImpl', () => {
     expect(await fs.pathExists(path.join(TEST_DIR, 'src/prisma/prisma.module.ts'))).toBe(true)
   })
 
+  it('should remap "src" dest to apps/api/src for a monorepo', async () => {
+    const monorepoCtx = new PluginContextImpl({
+      projectName: 'test-project',
+      projectPath: TEST_DIR,
+      structure: 'monorepo',
+      selections: { ...baseSelections, structure: 'monorepo' },
+    })
+
+    const srcDir = path.join(TEST_DIR, '_templates')
+    await fs.ensureDir(path.join(srcDir, 'auth'))
+    await fs.writeFile(path.join(srcDir, 'auth/auth.module.ts'), 'auth code')
+
+    monorepoCtx.copyTemplates(srcDir, 'src')
+
+    // Must land under apps/api/src, not <root>/src
+    expect(await fs.pathExists(path.join(TEST_DIR, 'apps/api/src/auth/auth.module.ts'))).toBe(
+      true,
+    )
+    expect(await fs.pathExists(path.join(TEST_DIR, 'src/auth/auth.module.ts'))).toBe(false)
+  })
+
   it('should collect dependencies', () => {
     ctx.addDependencies({ '@prisma/client': '^6.0.0' })
     ctx.addDependencies({ 'rxjs': '^7.0.0' })

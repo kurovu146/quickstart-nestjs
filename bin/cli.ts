@@ -29,13 +29,19 @@ program
     loadAllPlugins(registry)
 
     // Run prompts
-    let selections = await runPrompts(registry, projectName)
-
-    // Show summary and confirm
-    let confirmed = await showSummary(selections)
-    while (!confirmed) {
+    let selections: Awaited<ReturnType<typeof runPrompts>>
+    try {
       selections = await runPrompts(registry, projectName)
-      confirmed = await showSummary(selections)
+
+      // Show summary and confirm
+      let confirmed = await showSummary(selections)
+      while (!confirmed) {
+        selections = await runPrompts(registry, projectName)
+        confirmed = await showSummary(selections)
+      }
+    } catch (err) {
+      console.error(chalk.red(err instanceof Error ? err.message : String(err)))
+      process.exit(1)
     }
 
     // Collect selected plugin names

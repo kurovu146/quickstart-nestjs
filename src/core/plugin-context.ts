@@ -42,8 +42,27 @@ export class PluginContextImpl implements PluginContext {
     this.pluginsDir = options.pluginsDir || ''
   }
 
+  /**
+   * Map a plugin-relative destination onto the correct source root.
+   * Plugins author paths against a monolith layout (e.g. "src/auth"), but in a
+   * monorepo the application code lives under "apps/api/src". Without this remap
+   * plugin files land in "<root>/src" while app.module.ts (in apps/api/src)
+   * imports "./auth/..." → unresolved → the generated project fails to build.
+   * Registered module import paths stay relative to app.module.ts, so only the
+   * physical destination needs remapping.
+   */
+  private resolveDest(dest: string): string {
+    if (this.structure === 'monorepo') {
+      if (dest === 'src') return 'apps/api/src'
+      if (dest.startsWith('src/')) return 'apps/api/' + dest
+    }
+    return dest
+  }
+
   copyTemplates(source: string, dest?: string): void {
-    const target = dest ? path.join(this.projectPath, dest) : this.projectPath
+    const target = dest
+      ? path.join(this.projectPath, this.resolveDest(dest))
+      : this.projectPath
     fs.copySync(source, target, { overwrite: true })
   }
 
@@ -52,7 +71,7 @@ export class PluginContextImpl implements PluginContext {
     dest: string,
     data: Record<string, unknown>,
   ): Promise<void> {
-    const outputPath = path.join(this.projectPath, dest)
+    const outputPath = path.join(this.projectPath, this.resolveDest(dest))
     await this.renderer.renderToFile(source, outputPath, data)
   }
 

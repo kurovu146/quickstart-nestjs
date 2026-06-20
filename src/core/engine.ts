@@ -18,11 +18,31 @@ export interface GenerateOptions {
   skipFormat?: boolean
 }
 
+/**
+ * A project name must be a single, plain directory segment.
+ * Rejects path separators, "..", absolute paths and other tricks that could
+ * escape the output directory when joined into a filesystem path.
+ */
+export function isSafeProjectName(name: string): boolean {
+  return /^[a-z0-9-_]+$/.test(name)
+}
+
 export class GeneratorEngine {
   constructor(private registry: PluginRegistry) {}
 
   async generate(options: GenerateOptions): Promise<string> {
     const { outputDir, selections, skeletonsDir, selectedPlugins = [] } = options
+
+    // Guard against path traversal: projectName must be a plain directory name.
+    // Without this, a malicious/careless name like "../foo" would make the
+    // fs.remove() below delete a directory outside outputDir.
+    if (!isSafeProjectName(selections.projectName)) {
+      throw new Error(
+        `Invalid project name: "${selections.projectName}". ` +
+          'Use lowercase letters, numbers, hyphens and underscores only.',
+      )
+    }
+
     const projectPath = path.join(outputDir, selections.projectName)
 
     // 1. Clean and create project directory
@@ -34,6 +54,10 @@ export class GeneratorEngine {
     if (await fs.pathExists(skeletonDir)) {
       await fs.copy(skeletonDir, projectPath, { overwrite: true })
     }
+
+    // 2b. Ensure a .gitignore exists BEFORE any `git add` happens downstream,
+    // otherwise the generated `.env` (secrets) and node_modules get committed.
+    await this.generateGitignore(projectPath)
 
     // 3. Resolve plugin install order
     const orderedPlugins = this.registry.resolveInstallOrder(selectedPlugins)
@@ -154,6 +178,62 @@ export class GeneratorEngine {
     pkg.scripts = { ...existingScripts, ...ctx.getScripts() }
 
     await fs.writeJSON(pkgPath, pkg, { spaces: 2 })
+  }
+
+  private async generateGitignore(projectPath: string): Promise<void> {
+    const gitignorePath = path.join(projectPath, '.gitignore')
+
+    const entries = [
+      '# Dependencies',
+      'node_modules/',
+      '',
+      '# Build output',
+      'dist/',
+      'build/',
+      '',
+      '# Environment (never commit real secrets)',
+      '.env',
+      '.env.local',
+      '.env.*.local',
+      '',
+      '# Logs',
+      'logs/',
+      '*.log',
+      'npm-debug.log*',
+      'yarn-debug.log*',
+      'yarn-error.log*',
+      '',
+      '# Test / coverage',
+      'coverage/',
+      '.nyc_output/',
+      '',
+      '# Uploads (local upload plugin)',
+      'uploads/',
+      '',
+      '# OS / editor',
+      '.DS_Store',
+      '.idea/',
+      '.vscode/',
+    ]
+
+    // Preserve any entries the skeleton already shipped (deduplicated).
+    let existing: string[] = []
+    if (await fs.pathExists(gitignorePath)) {
+      existing = (await fs.readFile(gitignorePath, 'utf-8')).split('\n')
+    }
+
+    const seen = new Set(
+      existing.map((l) => l.trim()).filter((l) => l && !l.startsWith('#')),
+    )
+    const merged = [...existing.filter((l) => l.trim().length > 0)]
+    if (merged.length > 0) merged.push('')
+    for (const entry of entries) {
+      const key = entry.trim()
+      if (key && !key.startsWith('#') && seen.has(key)) continue
+      merged.push(entry)
+    }
+
+    await fs.writeFile(gitignorePath, merged.join('\n').trimEnd() + '\n', 'utf-8')
   }
 
   private async generateEnvFile(projectPath: string, ctx: PluginContextImpl): Promise<void> {

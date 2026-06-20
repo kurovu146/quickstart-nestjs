@@ -14,7 +14,13 @@ export class UploadService {
   }
 
   async upload(file: Express.Multer.File) {
-    const filename = `${randomUUID()}-${file.originalname}`;
+    // Never trust file.originalname — it can contain path segments like
+    // "../../etc/passwd". Strip it to a bare filename and sanitize so the write
+    // can never escape uploadDir.
+    const safeName = path
+      .basename(file.originalname)
+      .replace(/[^a-zA-Z0-9._-]/g, '_');
+    const filename = `${randomUUID()}-${safeName}`;
     const filepath = path.join(this.uploadDir, filename);
 
     fs.writeFileSync(filepath, file.buffer);

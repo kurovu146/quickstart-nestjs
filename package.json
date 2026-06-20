@@ -24,9 +24,23 @@
     "scaffold",
     "cli",
     "boilerplate",
-    "starter"
+    "starter",
+    "generator",
+    "prisma",
+    "typeorm",
+    "jwt",
+    "create-nestjs"
   ],
+  "author": "Vũ Đức Tuấn (kurovu146) <vitex.dev1@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kurovu146/quickstart-nestjs.git"
+  },
+  "homepage": "https://github.com/kurovu146/quickstart-nestjs#readme",
+  "bugs": {
+    "url": "https://github.com/kurovu146/quickstart-nestjs/issues"
+  },
   "engines": {
     "node": ">=18"
   },

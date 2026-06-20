@@ -1,144 +1,179 @@
-# quickstart-nestjs
+<div align="center">
 
-[![npm version](https://img.shields.io/npm/v/quickstart-nestjs.svg)](https://www.npmjs.com/package/quickstart-nestjs)
-[![license](https://img.shields.io/github/license/kurovu146/quickstart-nestjs)](https://github.com/kurovu146/quickstart-nestjs/blob/main/LICENSE)
-[![node](https://img.shields.io/node/v/quickstart-nestjs?label=node)](https://nodejs.org)
+# ⚡ quickstart-nestjs
 
-CLI tool that scaffolds production-ready NestJS projects through interactive prompts.
+### Spin up a production-ready NestJS API in seconds — not days.
 
-## Quick Start
+An interactive CLI that scaffolds a fully-wired NestJS project: pick your database, ORM, auth, cache, queue and more, and get a project that **installs, builds, and boots** out of the box.
+
+[![npm version](https://img.shields.io/npm/v/quickstart-nestjs.svg?color=e0234e&label=npm)](https://www.npmjs.com/package/quickstart-nestjs)
+[![license](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+[![node](https://img.shields.io/badge/node-%E2%89%A518-brightgreen.svg)](https://nodejs.org)
+[![built with NestJS](https://img.shields.io/badge/built%20with-NestJS-e0234e.svg)](https://nestjs.com)
+
+</div>
+
+---
+
+## 🚀 Get started in one command
 
 ```bash
 npx quickstart-nestjs my-project
 ```
 
-You will be prompted to choose a project structure, package manager, and any combination of plugins. The tool installs dependencies and wires everything together automatically.
+Prefer a global install? Do it once, then call it anywhere:
 
-## Features
-
-- Interactive prompt-driven setup — no flags to memorize
-- 20 plugins across 11 categories (database, ORM, auth, cache, realtime, docs, infra, logger, queue, mailer, upload)
-- Smart compatibility filtering — incompatible options are hidden based on prior selections
-- Monolith and monorepo project structures
-- Auto-generates `.env`, `docker-compose.yml`, and NestJS module wiring
-- Supports npm, yarn, pnpm, and bun
-
-## Available Plugins
-
-| Name | Category | Description |
-|------|----------|-------------|
-| PostgreSQL | Database | Powerful, open source relational database |
-| MySQL | Database | Popular open source relational database |
-| MongoDB | Database | NoSQL document database |
-| SQLite | Database | Embedded file-based relational database |
-| Prisma | ORM | Next-generation ORM with type-safe client |
-| TypeORM | ORM | ORM for TypeScript with decorator support |
-| Sequelize | ORM | Promise-based ORM for relational databases |
-| Mongoose | ORM | Elegant MongoDB ODM |
-| JWT | Auth | JSON Web Token authentication with Passport |
-| Redis | Cache | In-memory data store for caching |
-| Socket.io | Realtime | Event-driven bidirectional communication |
-| WebSocket | Realtime | Native NestJS WebSocket gateway |
-| Swagger | Docs | OpenAPI documentation via `@nestjs/swagger` |
-| Docker | Infra | `docker-compose.yml` with selected services |
-| Pino | Logger | Fast, low-overhead JSON logger |
-| Winston | Logger | Versatile multi-transport logger |
-| BullMQ | Queue | Redis-based queue for background jobs |
-| Nodemailer | Mailer | Email sending via SMTP |
-| S3 Upload | Upload | File upload to AWS S3 |
-| Local Upload | Upload | File upload to local disk via Multer |
-
-## Project Structures
-
-**Monolith** — a single NestJS application. All source lives under `src/`. Best for most projects.
-
-**Monorepo** — multiple apps under `apps/` with shared libraries under `libs/`. Managed by the NestJS CLI monorepo mode. Best when you need to ship multiple services (e.g., API + worker) from one repository.
-
-## Smart Filtering
-
-Each plugin declares which other plugins it conflicts with or requires. At prompt time, `getCompatible()` filters the available choices based on what you have already selected:
-
-- ORM choices are only shown after you pick a database. Mongoose appears only if you chose MongoDB; relational ORMs appear only for SQL databases.
-- JWT auth is only offered after you select an ORM (it needs a user store).
-- BullMQ is only shown after you select Redis (it depends on it as a queue backend).
-
-This means you never see an option that cannot work with your current selections.
-
-## Generated Project Structure
-
-Example output for a monolith project with PostgreSQL + Prisma + JWT + Swagger + Docker:
-
+```bash
+npm install -g quickstart-nestjs
+quickstart-nestjs my-project
 ```
+
+That's it. Answer a few prompts and you'll have a running NestJS app with dependencies installed, git initialized, and every module wired together.
+
+```text
+⚡ quickstart-nestjs
+Scaffold production-ready NestJS projects
+
+✔ Project structure       › Monolith
+✔ Package manager         › npm
+✔ Database                › PostgreSQL
+✔ ORM                     › Prisma
+✔ Authentication          › JWT
+✔ Caching                 › Redis
+✔ API Documentation       › Swagger
+✔ Docker support          › Yes
+
+✔ Project scaffolded!
+✔ Dependencies installed!
+✔ Git repository initialized!
+```
+
+---
+
+## ✨ Why you'll like it
+
+- **🧠 Smart prompts, zero flags** — incompatible options are hidden as you go, so you can't build a combo that won't work.
+- **🔋 Batteries included** — auth, caching, queues, websockets, docs, logging, file uploads… all pre-wired.
+- **🔐 Auth that actually works** — JWT register/login with a real, ORM-backed user store (Prisma, TypeORM, Sequelize, or Mongoose), global guard, and `@Public()` opt-out.
+- **🐳 Instant infrastructure** — generates a `docker-compose.yml` for your database, Redis and friends, plus handy `db:up` / `db:down` scripts.
+- **🏗️ Monolith or monorepo** — pick the structure that fits, with the NestJS CLI configured for both.
+- **✅ Verified end-to-end** — every database/ORM combination is tested to install, build, and boot before release.
+- **📦 Your package manager** — npm, yarn, pnpm, or bun.
+
+---
+
+## 🧩 Available plugins
+
+**20 plugins across 11 categories** — mix and match freely.
+
+| Category | Plugins |
+|----------|---------|
+| 🗄️ **Database** | PostgreSQL · MySQL · MongoDB · SQLite |
+| 🔗 **ORM** | Prisma · TypeORM · Sequelize · Mongoose |
+| 🔐 **Auth** | JWT (Passport) |
+| ⚡ **Cache** | Redis |
+| 🔌 **Realtime** | Socket.io · Native WebSocket |
+| 📚 **Docs** | Swagger / OpenAPI |
+| 🐳 **Infra** | Docker |
+| 📝 **Logger** | Pino · Winston |
+| 📬 **Queue** | BullMQ |
+| ✉️ **Mailer** | Nodemailer |
+| 📁 **Upload** | AWS S3 · Local (Multer) |
+
+---
+
+## 🪄 Smart compatibility filtering
+
+Each plugin declares what it conflicts with or requires, and the prompts adapt to your previous answers:
+
+- ORMs only appear after you choose a database — Mongoose for MongoDB, relational ORMs for SQL.
+- JWT auth is offered only once an ORM is selected (it needs a user store).
+- BullMQ shows up only after you pick Redis (its queue backend).
+
+You never see an option that can't work with what you've already chosen.
+
+---
+
+## 📂 What gets generated
+
+Example output for a **monolith** with PostgreSQL + Prisma + JWT + Swagger + Docker:
+
+```text
 my-project/
 ├── src/
-│   ├── app.module.ts
-│   ├── app.controller.ts
-│   ├── app.service.ts
-│   ├── main.ts
-│   ├── auth/
-│   │   ├── auth.module.ts
+│   ├── main.ts                     # CORS, validation, Swagger wired up
+│   ├── app.module.ts               # global filter + interceptor + config
+│   ├── auth/                       # register / login / profile, global JWT guard
+│   │   ├── auth.controller.ts
 │   │   ├── auth.service.ts
+│   │   ├── guards/jwt-auth.guard.ts
 │   │   └── strategies/jwt.strategy.ts
-│   ├── users/
+│   ├── users/                      # real ORM-backed UsersService
 │   │   ├── users.module.ts
 │   │   └── users.service.ts
-│   ├── prisma/
-│   │   ├── prisma.module.ts
-│   │   └── prisma.service.ts
-│   ├── common/
-│   │   ├── decorators/public.decorator.ts
-│   │   ├── filters/http-exception.filter.ts
-│   │   └── interceptors/transform.interceptor.ts
+│   ├── prisma/                     # PrismaModule + PrismaService
+│   ├── common/                     # @Public, exception filter, transform interceptor
 │   └── config/
-│       └── app.config.ts
 ├── prisma/
-│   └── schema.prisma
-├── docker-compose.yml
-├── .env
+│   ├── schema.prisma
+│   └── seed.ts
+├── docker-compose.yml              # postgres service + named volumes
+├── .env / .env.example
+├── .gitignore
 ├── nest-cli.json
 ├── tsconfig.json
-└── package.json
+└── package.json                    # db:up, db:down, start:dev, ...
 ```
 
-## Development
+Then just:
+
+```bash
+cd my-project
+npm run db:up        # start the database with Docker
+npx prisma migrate dev --name init
+npm run start:dev    # 🎉 http://localhost:3000  ·  docs at /api
+```
+
+---
+
+## 🏛️ Project structures
+
+- **Monolith** — a single NestJS application with everything under `src/`. Best for most projects.
+- **Monorepo** — multiple apps under `apps/` with shared libraries in `libs/`, managed by NestJS monorepo mode. Best when you ship several services (e.g. API + worker) from one repo.
+
+---
+
+## 🛠️ Local development
 
 ```bash
 git clone https://github.com/kurovu146/quickstart-nestjs.git
 cd quickstart-nestjs
 npm install
 
-# Watch mode
-npm run dev
-
-# Run locally
-npm run build && node dist/cli.js my-project
-
-# Run tests
-npm test
-
-# Lint & format
-npm run lint
-npm run format
+npm run dev                          # watch mode
+npm run build && node dist/cli.js my-project   # run locally
+npm test                             # run the test suite
+npm run lint                         # prettier --check
 ```
 
-## Contributing
+---
 
-### Adding a New Plugin
+## 🤝 Contributing
 
-1. Create a folder under `src/plugins/<plugin-name>/`.
+Want to add a plugin? It takes three small steps.
 
-2. Add an `index.ts` that calls `definePlugin()`:
+1. Create `src/plugins/<plugin-name>/` with an `index.ts`:
 
    ```typescript
    import { definePlugin } from '../../core/types.js'
 
    export const myPlugin = definePlugin({
      name: 'my-plugin',
-     category: 'cache',          // one of the PluginCategory values
+     category: 'cache',                 // one of the PluginCategory values
      displayName: 'My Plugin',
      description: 'Short description shown in the prompt',
-     conflicts: ['other-plugin'], // optional
-     requires: ['redis'],         // optional — install after these
+     conflicts: ['other-plugin'],       // optional
+     requires: ['redis'],               // optional — install after these
      isCompatible: (sel) => sel.cache === 'redis', // optional filter
      install: async (ctx) => {
        ctx.addDependencies({ 'my-package': '^1.0.0' })
@@ -148,16 +183,19 @@ npm run format
    })
    ```
 
-3. Add EJS templates under `src/plugins/<plugin-name>/templates/` if the plugin copies source files.
+2. Add any source templates under `src/plugins/<plugin-name>/templates/`.
 
-4. Register the plugin in `src/plugins/index.ts`:
+3. Register it in `src/plugins/index.ts`:
 
    ```typescript
    import { myPlugin } from './my-plugin/index.js'
-   // ...
    registry.register(myPlugin)
    ```
 
-## License
+Issues and PRs are welcome → [github.com/kurovu146/quickstart-nestjs](https://github.com/kurovu146/quickstart-nestjs/issues)
 
-MIT
+---
+
+## 📄 License
+
+[MIT](./LICENSE) © Vũ Đức Tuấn ([@kurovu146](https://github.com/kurovu146))

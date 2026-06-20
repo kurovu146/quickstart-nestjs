@@ -8,7 +8,8 @@ import { ConfigService } from '@nestjs/config';
       useFactory: (configService: ConfigService) => ({
         connection: {
           host: configService.get<string>('REDIS_HOST', 'localhost'),
-          port: configService.get<number>('REDIS_PORT', 6379),
+          // env values are strings — coerce so bullmq gets a real number.
+          port: Number(configService.get('REDIS_PORT', 6379)),
         },
       }),
       inject: [ConfigService],

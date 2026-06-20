@@ -19,6 +19,13 @@ export const typeormPlugin = definePlugin({
       mongodb: 'mongodb',
       sqlite: 'better-sqlite3',
     }
+    // TypeORM's `type` option differs from the npm driver name for some DBs.
+    const typeormTypeMap: Record<string, string> = {
+      postgres: 'postgres',
+      mysql: 'mysql',
+      mongodb: 'mongodb',
+      sqlite: 'better-sqlite3',
+    }
     const db = ctx.selections.database || 'postgres'
     const driver = dbDriverMap[db]
 
@@ -27,6 +34,9 @@ export const typeormPlugin = definePlugin({
       '@nestjs/typeorm': '^11.0.0',
       [driver]: 'latest',
     })
+    // database.module reads DB_TYPE; set it so the right driver is used out of
+    // the box instead of always defaulting to postgres.
+    ctx.addEnvVars({ DB_TYPE: typeormTypeMap[db] || 'postgres' })
     ctx.registerModule('DatabaseModule', './database/database.module')
   },
 })

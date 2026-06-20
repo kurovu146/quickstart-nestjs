@@ -47,14 +47,30 @@ export class ModuleWirer {
   }
 
   private injectIntoArray(source: string, arrayName: string, value: string): string {
-    const regex = new RegExp(`(${arrayName}:\\s*\\[)([^\\]]*)`, 's')
-    const match = source.match(regex)
-    if (!match) return source
+    const header = new RegExp(`${arrayName}:\\s*\\[`)
+    const headerMatch = header.exec(source)
+    if (!headerMatch) return source
 
-    const existingContent = match[2].trim()
+    // Find the matching close bracket by tracking depth, so nested arrays/objects
+    // (e.g. `imports: [ConfigModule.forRoot({ load: [appConfig] })]`) don't trip
+    // us up the way a naive `[^\]]*` regex would.
+    const open = headerMatch.index + headerMatch[0].length
+    let depth = 1
+    let close = open
+    for (; close < source.length; close++) {
+      const ch = source[close]
+      if (ch === '[') depth++
+      else if (ch === ']') {
+        depth--
+        if (depth === 0) break
+      }
+    }
+    if (depth !== 0) return source
+
+    const existingContent = source.slice(open, close).trim()
     const separator =
       existingContent.length === 0 ? '' : existingContent.endsWith(',') ? '\n    ' : ',\n    '
 
-    return source.replace(regex, `$1${match[2]}${separator}${value}`)
+    return source.slice(0, close) + separator + value + source.slice(close)
   }
 }

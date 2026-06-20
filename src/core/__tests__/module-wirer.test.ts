@@ -62,6 +62,36 @@ export class AppModule {}
     expect(result).toMatch(/providers:\s*\[[\s\S]*AppService/)
   })
 
+  it('should inject into the outer array when imports contain a nested array', () => {
+    const source = `import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import appConfig from './config/app.config';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [appConfig],
+    }),
+  ],
+  controllers: [],
+  providers: [],
+})
+export class AppModule {}
+`
+    const wirer = new ModuleWirer(source)
+    wirer.addModule('PrismaModule', './prisma/prisma.module')
+
+    const result = wirer.toString()
+
+    // Must NOT end up inside `load: [appConfig]`
+    expect(result).toContain('load: [appConfig]')
+    expect(result).not.toContain('load: [appConfig,')
+    expect(result).not.toMatch(/load: \[appConfig[\s\S]*PrismaModule[\s\S]*\]\s*,?\s*\)/)
+    // Must be a member of the outer imports array
+    expect(result).toMatch(/imports:\s*\[[\s\S]*ConfigModule\.forRoot[\s\S]*PrismaModule/)
+  })
+
   it('should work with existing imports in arrays', () => {
     const source = `import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';

@@ -8,7 +8,8 @@ import { ConfigService } from '@nestjs/config';
       useFactory: (configService: ConfigService) => ({
         transport: {
           host: configService.get<string>('MAIL_HOST'),
-          port: configService.get<number>('MAIL_PORT'),
+          // env values are strings — coerce so nodemailer gets a real number.
+          port: Number(configService.get('MAIL_PORT', 587)),
           auth: {
             user: configService.get<string>('MAIL_USER'),
             pass: configService.get<string>('MAIL_PASS'),

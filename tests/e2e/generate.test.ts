@@ -110,6 +110,32 @@ describe('E2E: Full project generation', () => {
     expect(appModule).toContain('UsersModule')
     expect(appModule).toContain('CacheModule')
     expect(appModule).toContain('GatewayModule')
+    // Plugin modules must be injected into the OUTER imports array, not the
+    // ConfigModule load:[appConfig] nested array.
+    expect(appModule).toContain('load: [appConfig]')
+    expect(appModule).not.toContain('load: [appConfig,')
+    // Skeleton's global filter/interceptor wiring must survive injection.
+    expect(appModule).toContain('APP_FILTER')
+    expect(appModule).toContain('APP_INTERCEPTOR')
+
+    // Swagger must actually be wired into bootstrap, not just installed.
+    const mainTs = await fs.readFile(path.join(projectPath, 'src/main.ts'), 'utf-8')
+    expect(mainTs).toContain('SwaggerModule.setup')
+
+    // JWT must register a global guard that respects @Public().
+    const authModule = await fs.readFile(
+      path.join(projectPath, 'src/auth/auth.module.ts'),
+      'utf-8',
+    )
+    expect(authModule).toContain('APP_GUARD')
+    const guard = await fs.readFile(
+      path.join(projectPath, 'src/auth/guards/jwt-auth.guard.ts'),
+      'utf-8',
+    )
+    expect(guard).toContain('IS_PUBLIC_KEY')
+
+    // Prisma db:seed script must have a matching seed file.
+    expect(await fs.pathExists(path.join(projectPath, 'prisma/seed.ts'))).toBe(true)
 
     // Verify .env.example has all vars
     const envContent = await fs.readFile(path.join(projectPath, '.env.example'), 'utf-8')

@@ -13,7 +13,12 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors();
+  // Lock CORS down via env. Set CORS_ORIGIN to a comma-separated allowlist in
+  // production; defaults to reflecting all origins for local development only.
+  const corsOrigin = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
+    : true;
+  app.enableCors({ origin: corsOrigin, credentials: true });
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

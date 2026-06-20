@@ -69,6 +69,20 @@ describe('ORM plugins', () => {
     expect(ctx.getModules()).toContainEqual(
       expect.objectContaining({ moduleName: 'DatabaseModule' }),
     )
+    // DB_TYPE must be set so the module doesn't always fall back to postgres.
+    expect(ctx.getEnvVars().DB_TYPE).toBe('postgres')
+  })
+
+  it('typeorm: should set DB_TYPE matching the selected database', async () => {
+    const ctx = new PluginContextImpl({
+      projectName: 'test',
+      projectPath: TEST_DIR,
+      structure: 'monolith',
+      selections: { ...baseSelections, database: 'mysql', orm: 'typeorm' },
+      pluginsDir: path.resolve(import.meta.dirname, '..'),
+    })
+    await typeormPlugin.install(ctx)
+    expect(ctx.getEnvVars().DB_TYPE).toBe('mysql')
   })
 
   it('mongoose: should require mongodb', () => {

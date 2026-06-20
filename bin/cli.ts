@@ -2,6 +2,7 @@ import { Command } from 'commander'
 import chalk from 'chalk'
 import ora from 'ora'
 import path from 'path'
+import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'url'
 import { runPrompts } from '../src/cli/prompts.js'
 import { showSummary } from '../src/cli/summary.js'
@@ -11,12 +12,17 @@ import { loadAllPlugins } from '../src/plugins/index.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+// Read the real version from package.json so it never drifts from the release.
+const { version } = JSON.parse(
+  readFileSync(path.resolve(__dirname, '../package.json'), 'utf-8'),
+)
+
 const program = new Command()
 
 program
   .name('quickstart-nestjs')
   .description('Scaffold production-ready NestJS projects')
-  .version('0.1.0')
+  .version(version)
   .argument('[project-name]', 'Name of the project')
   .action(async (projectName?: string) => {
     console.log('')
